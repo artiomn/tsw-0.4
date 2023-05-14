@@ -1,0 +1,30 @@
+[submodule "src/third_party/args"]
+	path = src/third_party/args
+	url = https://github.com/Taywee/args
+[submodule "src/third_party/azmq"]
+	path = src/third_party/azmq
+	url = https://github.com/zeromq/azmq/
+[submodule "src/third_party/asio"]
+	path = src/third_party/asio
+	url = https://github.com/chriskohlhoff/asio
+[submodule "src/third_party/baical_p7"]
+	path = src/third_party/baical_p7
+	url = https://github.com/artiomn/baical_p7
+[submodule "src/third_party/bson-cxx"]
+	path = src/third_party/bson-cxx
+	url = https://github.com/dwight/bson-cxx/
+[submodule "src/third_party/bsontools"]
+	path = src/third_party/bsontools
+	url = https://github.com/dwight/bsontools
+[submodule "src/third_party/libzmq"]
+	path = src/third_party/libzmq
+	url = https://github.com/zeromq/libzmq
+[submodule "src/third_party/googletest"]
+	path = src/third_party/googletest
+	url = https://github.com/google/googletest
+[submodule "src/third_party/rapidjson"]
+	path = src/third_party/rapidjson
+	url = https://github.com/miloyip/rapidjson
+[submodule "src/third_party/ejdb"]
+	path = src/third_party/ejdb
+	url = https://github.com/Softmotions/ejdb
