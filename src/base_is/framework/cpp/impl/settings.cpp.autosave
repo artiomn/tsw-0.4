@@ -1,0 +1,138 @@
+/**
+  * @file settings.cpp
+  * @author Artiom N.(cl)2017
+  * @brief Settings class implementation.
+  *
+  */
+
+#include <fstream>
+#include <vector>
+
+#include <tsw/error.h>
+#include <tsw/json_deserializer.h>
+#include <tsw/json_serializer.h>
+#include <tsw/settings.h>
+#include <tsw/types.h>
+
+namespace tsw
+{
+
+Settings::Settings(const Path &system_defaults_path,
+                   const Path &module_path,
+                   const Path &global_path,
+                   const Path &user_path,
+                   const SettingsMap &user_settings) :
+    system_defaults_path_(system_defaults_path),
+    module_path_(module_path),
+    global_path_(global_path),
+    user_path_(user_path),
+    user_defined_settings_(user_settings)
+{
+    reload_settings();
+}
+
+
+Settings::Settings(const Path &module_path, const SettingsMap &user_settings) :
+    system_defaults_path_(system_settings_file),
+    module_path_(module_path),
+    global_path_(global_settings_file),
+    user_path_(user_settings_file),
+    user_defined_settings_(user_settings)
+{
+    reload_settings();
+}
+
+
+void Settings::reload_settings()
+{
+    JsonDeserializer jd;
+    Path p;
+
+    for(auto i = static_cast<int>(SettingsType::stDefaultSystem); i <= static_cast<int>(SettingsType::stUser); ++i)
+    {
+        decltype(module_default_settings_) *m;
+
+        switch(static_cast<SettingsType>(i))
+        {
+            case SettingsType::stDefaultSystem:
+                p = system_defaults_path_;
+                m = &system_default_settings_;
+            break;
+            case SettingsType::stDefaultModule:
+                p = module_path_;
+                m = &module_default_settings_;
+            break;
+            case SettingsType::stGlobal:
+                p = global_path_;
+                m = &global_settings_;
+            break;
+            case SettingsType::stUser:
+                p = user_path_;
+                m = &current_user_settings_;
+            break;
+            default:
+                TSW_ASSERT("Incorrect settings type" == nullptr);
+        }
+
+        std::ifstream ds(p, std::ios::binary);
+
+        if (!ds) continue;
+
+        BinData buf((std::istreambuf_iterator<std::ifstream::char_type>(ds)),
+                    (std::istreambuf_iterator<std::ifstream::char_type>()));
+        *m = jd.DeserializeObject(buf);
+    }
+
+    // Merge settings maps.
+    joined_settings_cache_ = user_defined_settings_;
+
+    // Existing keys will not be replaced.
+    joined_settings_cache_.insert(current_user_settings_.cbegin(), current_user_settings_.cend());
+    joined_settings_cache_.insert(global_settings_.cbegin(), global_settings_.cend());
+    joined_settings_cache_.insert(module_default_settings_.cbegin(), module_default_settings_.cend());
+    joined_settings_cache_.insert(system_default_settings_.cbegin(), system_default_settings_.cend());
+}
+
+
+const SettingsMap& Settings::get_settings(const SettingsType type) const
+{
+    switch (type)
+    {
+        case SettingsType::stJoined:
+        {
+            return joined_settings_cache_;
+        }
+        case SettingsType::stDefaultSystem:
+        {
+            return system_default_settings_;
+        }
+        case SettingsType::stDefaultModule:
+        {
+            return module_default_settings_;
+        }
+        case SettingsType::stGlobal:
+        {
+            // from the /etc.
+            return global_settings_;
+        }
+        case SettingsType::stUser:
+        {
+            return current_user_settings_;
+        }
+        case SettingsType::stCommandLine:
+        {
+            return user_defined_settings_;
+        }
+    }
+}
+
+
+void Settings::save_settings(const SettingsMap &settings, bool global)  
+{
+    //global_path_
+    //global_settings_;
+    //  user_path_
+    //current_user_settings_;
+}
+
+} // namespace tsw
